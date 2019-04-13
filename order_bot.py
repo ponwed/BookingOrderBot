@@ -82,7 +82,16 @@ if __name__ == "__main__":
 		print("Order Bot connected and running!")
 		order_bot_id = slack_client.api_call("auth.test")["user_id"]
 		while True:
-			command, channel = parse_bot_commands(slack_client.rtm_read())
+			try:
+				command, channel = parse_bot_commands(slack_client.rtm_read())
+			except WebSocketConnectionClosedException:
+				print("Lost connection to slack, reconnecting...")
+				if not slack_client.rtm_connect(with_team_state=False):
+					print("Failed to reconnect to to Slack")
+					time.sleep(1)
+				else:
+					print("Reconnected to Slack!")
+					
 			if command:
 				handle_command(command, channel)
 			time.sleep(RTM_READ_DELAY)

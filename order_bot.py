@@ -34,12 +34,12 @@ def handle_command(command, channel):
 	response = None
 	
 	if command.startswith(COMMAND):
-		if "next booker" in command:
+		if "get next booker" in command:
 			response = get_booker()
-		if "register booking" in command:
+		elif "register booking" in command:
 			set_booking(command)
 			response = get_booking()
-		if "view booking":
+		elif "view booking":
 			response = get_booking()
 
 	slack_client.api_call(
@@ -50,12 +50,12 @@ def handle_command(command, channel):
 	
 def set_booking(command):
 	courts = re.findall(r'\d+', command)
-	booking = open("booking", 'w')
+	booking = open("data/booking", 'w')
 	booking.write("Booked courts: {}".format(' '.join(courts)))
 	booking.close()
 	
 def get_booking():
-	booking =  open("booking")
+	booking =  open("data/booking")
 	booked = file.read(booking)
 	booking.close()
 	
@@ -63,7 +63,7 @@ def get_booking():
 
 def update_next_booker():
 	# Get the last person to book
-	last_booking =  open("last_booking")
+	last_booking =  open("data/last_booking")
 	last_booker = file.read(last_booking)
 	last_booking.close()
 
@@ -77,19 +77,19 @@ def update_next_booker():
 	new_booker = BOOKING_ORDER[new_booker_index]
 
 	# Write the new "last booker" to the last booker file for next week
-	last_booking =  open("last_booking", "w")
+	last_booking =  open("data/last_booking", "w")
 	last_booking.write(new_booker)
 	last_booking.close()
 	
 def get_booker():
-	last_booking =  open("last_booking")
+	last_booking =  open("data/last_booking")
 	booker = file.read(last_booking)
 	last_booking.close()
 	
 	return booker
 	
 def time_for_new_booker():
-	last_write_time = os.path.getmtime("last_booking") # Get time of last modification of file
+	last_write_time = os.path.getmtime("data/last_booking") # Get time of last modification of file
 	current_time = time.time()
 
 	if (current_time - last_write_time) > 604800: # If file was written to more than a week ago it's time for a new booker

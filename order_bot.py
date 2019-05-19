@@ -13,7 +13,7 @@ order_bot_id = None
 
 # Constants
 RTM_READ_DELAY = 2
-COMMAND = "get","register","view"
+COMMAND = "get","register","view","help"
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 BOOKING_ORDER = booking_order.booking_order
 
@@ -34,7 +34,9 @@ def handle_command(command, channel):
 	response = None
 	
 	if command.startswith(COMMAND):
-		if "get next booker" in command:
+		if "help" in command:
+			response = get_help()
+		elif "get next booker" in command:
 			response = get_booker()
 		elif "register booking" in command:
 			set_booking(command)
@@ -47,6 +49,11 @@ def handle_command(command, channel):
 		channel=channel,
 		text=response or default_response
 	)
+
+def get_help():
+	commands = "Accepted prompts: {}".format(', '.join(COMMAND))
+	examples = "\n\nExamples:\nget next booker\nregister booking <court> <court> (one or many)\nview booking"
+	return commands + examples
 	
 def set_booking(command):
 	courts = re.findall(r'\d+', command)

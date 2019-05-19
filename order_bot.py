@@ -3,14 +3,17 @@ import time
 import datetime
 import re
 import booking_order
+import logging
 from slackclient import SlackClient
 
-slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+logging.basicConfig()
+
+slack_client = SlackClient(booking_order.token)
 order_bot_id = None
 
 # Constants
 RTM_READ_DELAY = 2
-COMMAND = "get"
+COMMAND = "get","register","view"
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 BOOKING_ORDER = booking_order.booking_order
 
@@ -33,12 +36,30 @@ def handle_command(command, channel):
 	if command.startswith(COMMAND):
 		if "next booker" in command:
 			response = get_booker()
+		if "register booking" in command:
+			set_booking(command)
+			response = get_booking()
+		if "view booking":
+			response = get_booking()
 
 	slack_client.api_call(
 		"chat.postMessage",
 		channel=channel,
 		text=response or default_response
 	)
+	
+def set_booking(command):
+	courts = re.findall(r'\d+', command)
+	booking = open("booking", 'w')
+	booking.write("Booked courts: {}".format(' '.join(courts)))
+	booking.close()
+	
+def get_booking():
+	booking =  open("booking")
+	booked = file.read(booking)
+	booking.close()
+	
+	return booked;
 
 def update_next_booker():
 	# Get the last person to book
@@ -65,7 +86,7 @@ def get_booker():
 	booker = file.read(last_booking)
 	last_booking.close()
 	
-	return booker;
+	return booker
 	
 def time_for_new_booker():
 	last_write_time = os.path.getmtime("last_booking") # Get time of last modification of file
@@ -84,7 +105,7 @@ if __name__ == "__main__":
 		while True:
 			try:
 				command, channel = parse_bot_commands(slack_client.rtm_read())
-			except WebSocketConnectionClosedException:
+			except:
 				print("Lost connection to slack, reconnecting...")
 				if not slack_client.rtm_connect(with_team_state=False):
 					print("Failed to reconnect to to Slack")

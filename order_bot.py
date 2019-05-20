@@ -96,10 +96,14 @@ def get_booker():
 	return booker
 	
 def time_for_new_booker():
-	last_write_time = os.path.getmtime("data/last_booking") # Get time of last modification of file
-	current_time = time.time()
-
-	if (current_time - last_write_time) > 604800: # If file was written to more than a week ago it's time for a new booker
+	# Get name of current weekday (sunday, monday, etc.)
+	weekday = datetime.date.today().strftime("%A")
+	update_timespan_begin = datetime.time(6)
+	update_timespan_end = datetime.time(6,0,10)
+	current_time = (datetime.datetime.now()).time()
+	
+	# If it's Monday between 06:00:00 and 06:00:10, 10 seconds should ensure enough time for a successfull return
+	if weekday == "Monday" and (update_timespan_begin < current_time < update_timespan_end): 
 		return True
 		
 	return False

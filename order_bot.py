@@ -102,8 +102,8 @@ def time_for_new_booker():
 	update_timespan_begin = datetime.time(6)
 	update_timespan_end = datetime.time(6,0,10)
 	current_time = (datetime.datetime.now()).time()
-	file_last_write_date = os.path.getmtime("last_booking")
-	file_last_write_date = datetime.datetime.utcfromtimestamp(file_last_write_time).date()
+	file_last_write_date = os.path.getmtime("data/last_booking")
+	file_last_write_date = datetime.datetime.utcfromtimestamp(file_last_write_date).date()
 	
 	# If it's Monday between 06:00:00 and 06:00:10, 10 seconds should ensure enough time for a successfull return
 	if weekday == "Monday" and (update_timespan_begin < current_time < update_timespan_end):

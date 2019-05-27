@@ -97,14 +97,18 @@ def get_booker():
 	
 def time_for_new_booker():
 	# Get name of current weekday (sunday, monday, etc.)
-	weekday = datetime.date.today().strftime("%A")
+	weekday_date = datetime.date.today()
+	weekday = weekday_date.strftime("%A")
 	update_timespan_begin = datetime.time(6)
 	update_timespan_end = datetime.time(6,0,10)
 	current_time = (datetime.datetime.now()).time()
+	file_last_write_date = os.path.getmtime("last_booking")
+	file_last_write_date = datetime.datetime.utcfromtimestamp(file_last_write_time).date()
 	
 	# If it's Monday between 06:00:00 and 06:00:10, 10 seconds should ensure enough time for a successfull return
-	if weekday == "Monday" and (update_timespan_begin < current_time < update_timespan_end): 
-		return True
+	if weekday == "Monday" and (update_timespan_begin < current_time < update_timespan_end):
+		if weekday_date != file_last_write_date: # Make sure we only write once on the update date
+			return True
 		
 	return False
 

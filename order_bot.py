@@ -2,7 +2,6 @@ import os
 import time
 import datetime
 import re
-import booking_order
 import logging
 from slackclient import SlackClient
 
@@ -15,7 +14,6 @@ order_bot_id = None
 RTM_READ_DELAY = 2
 COMMAND = "get","register","view","help"
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
-BOOKING_ORDER = booking_order.booking_order
 
 def parse_bot_commands(slack_events):
 	for event in slack_events:
@@ -67,26 +65,6 @@ def get_booking():
 	booking.close()
 	
 	return booked;
-
-def update_next_booker():
-	# Get the last person to book
-	last_booking =  open("data/last_booking")
-	last_booker = file.read(last_booking)
-	last_booking.close()
-
-	# Get index of last booker and add one to get next booker 
-	last_booker_index = BOOKING_ORDER.index(last_booker) # Special case if last booker was last in array, then reset
-	if last_booker_index == len(BOOKING_ORDER) - 1:
-		new_booker_index = 0
-	else:
-		new_booker_index = last_booker_index + 1
-		
-	new_booker = BOOKING_ORDER[new_booker_index]
-
-	# Write the new "last booker" to the last booker file for next week
-	last_booking =  open("data/last_booking", "w")
-	last_booking.write(new_booker)
-	last_booking.close()
 	
 def get_booker():
 	last_booking =  open("data/last_booking")
@@ -94,24 +72,6 @@ def get_booker():
 	last_booking.close()
 	
 	return booker
-	
-def time_for_new_booker():
-	# Get name of current weekday (sunday, monday, etc.)
-	weekday_date = datetime.date.today()
-	weekday = weekday_date.strftime("%A")
-	update_timespan_begin = datetime.time(6)
-	update_timespan_end = datetime.time(6,0,10)
-	current_time = (datetime.datetime.now()).time()
-	file_last_write_date = os.path.getmtime("data/last_booking")
-	file_last_write_date = datetime.datetime.utcfromtimestamp(file_last_write_date).date()
-	
-	# If it's Monday between 06:00:00 and 06:00:10, 10 seconds should ensure enough time for a successfull return
-	if weekday == "Monday" and (update_timespan_begin < current_time < update_timespan_end):
-		if weekday_date != file_last_write_date: # Make sure we only write once on the update date
-			return True
-		
-	return False
-
 
 if __name__ == "__main__":
 	if slack_client.rtm_connect(with_team_state=False):
@@ -131,9 +91,6 @@ if __name__ == "__main__":
 			if command:
 				handle_command(command, channel)
 			time.sleep(RTM_READ_DELAY)
-			
-			if time_for_new_booker():
-				update_next_booker()
 	else:
 		print("Order Bot connection failed")
 		

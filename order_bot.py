@@ -51,13 +51,14 @@ def handle_command(command, channel):
 
 def get_help():
 	commands = "Accepted prompts: {}".format(', '.join(COMMAND))
-	examples = "\n\nExamples:\nget next booker\nregister booking <court> <court> (one or many)\nview booking"
+	examples = "\n\nExamples:\nget next booker\nregister booking <BXX> <BYY> (one or many) HH:MM \nview booking"
 	return commands + examples
 	
 def set_booking(command):
-	courts = re.findall(r'\d+', command)
+	courts = re.findall(r'B\d+', command)
+	booked_time = re.findall(r'\d\d:\d\d', command)
 	booking = open("data/booking", 'w')
-	booking.write("Booked courts: {}".format(' '.join(courts)))
+	booking.write("Booked courts: {} Time: {}".format(' '.join(courts), booked_time[0]))
 	booking.close()
 	
 def get_booking():

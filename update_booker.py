@@ -3,7 +3,7 @@ import booking_order
 BOOKING_ORDER = booking_order.booking_order
 
 # Get the last person to book
-last_booking =  open("data/last_booking")
+last_booking =  open("/home/pi/bin/order_bot/data/last_booking")
 last_booker = file.read(last_booking)
 last_booking.close()
 
@@ -17,6 +17,6 @@ else:
 new_booker = BOOKING_ORDER[new_booker_index]
 
 # Write the new "last booker" to the last booker file for next week
-last_booking =  open("data/last_booking", "w")
+last_booking =  open("/home/pi/bin/order_bot/data/last_booking", "w")
 last_booking.write(new_booker)
 last_booking.close()
